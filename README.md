@@ -1,19 +1,11 @@
-# Win.Cerdalux
+<div align="center">
+  <img width="125px" src="assets/logo.png" />
+  <h1>Win.Cerdalux</h1>
+  <br/>
+  <p><i>WinXPSP2.Cermalus on stereoids, supporting all 32 bits Windows version. Windows Kernel Virus</i></p>
+</div>
 
-WinXPSP2.Cermalus on stereoids, supporting all 32 bits Windows version. Windows Kernel Virus
-
-![logo](logoindex.png)
-
-Based from WinXPSP2.Cermalus by Pluf/7A69ML: https://github.com/therealdreg/WinXPSP2.Cermalus/
-
-# TO-DO
-- [ ] dropper with .ico (new logo)
-- [ ] manifests... (run as admin etc)
-- [ ] CI basic
-- [ ] better doc
-- [ ] multi-core support: KeSetTargetProcessorDpc + KeInsertQueueDpc...
-- [ ] multi-os (Currently: XP SP2)
-- [ ] better source code comments
+Based from WinXPSP2.Cermalus by Pluf/7A69ML: [therealdreg/WinXPSP2.Cermalus](https://github.com/therealdreg/WinXPSP2.Cermalus/)
 
 # Credits
 
