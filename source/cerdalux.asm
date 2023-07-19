@@ -4,7 +4,7 @@
 ; based from WinXPSP2.Cermalus by Pluf/7A69ML
 ;
 ; Authors:
-; 	- David Reguera Garcia aka Dreg dreg@fr33project.org https://www.fr33project.org
+;  - David Reguera Garcia aka Dreg dreg@fr33project.org https://www.fr33project.org
 ;
 
 ; masm32 (masm32v11r, MASM32 11 version) https://www.masm32.com/download.htm
@@ -483,13 +483,13 @@ driver_object struct        ; size = 0A8h
  DriverSize                 dd  ?   ; 10h
  DriverSection              dd  ?   ; 14h
  DriverExtension            dd  ?   ; 18h
- DriverName      unicode_string <>	; 1Ch
+ DriverName      unicode_string <> ; 1Ch
  HardwareDatabase           dd  ?   ; 24h
  FastIoDispatch             dd  ?   ; 28h
  DriverInit                 dd  ?   ; 2Ch
  DriverStartIo              dd  ?   ; 30h
  DriverUnload               dd  ?   ; 34h
- MajorFunction		        dd  (IRP_MJ_MAXIMUM_FUNCTION + 1) dup(?)	; 0038h
+ MajorFunction          dd  (IRP_MJ_MAXIMUM_FUNCTION + 1) dup(?) ; 0038h
 driver_object ends
  
 ; object directory entry:
@@ -1833,7 +1833,7 @@ gen_crc32_end:
 ring0_wdog_end:
  
         ; PE infecction routine:
-		;
+  ;
         ; in:
         ;   ebx = ptr ring0data
         ;   ebp = delta offset
