@@ -20,6 +20,23 @@ Based from WinXPSP2.Cermalus by Pluf/7A69ML: [therealdreg/WinXPSP2.Cermalus](htt
 
 ![radasmdebugbuild](assets/radasmdebugbuild.png)
 
+# To-Do
+
+## General
+
+- [ ] dropper with .ico (new logo)
+- [ ] CI/CD implementation for testing
+- [ ] Write documentation
+- [x] port to Masm32v11r
+- [x] create Radasm project  
+
+## Features
+
+- [ ] Multi-core support: KeSetTargetProcessorDpc + KeInsertQueueDpc...
+- [ ] Support newer Windows versions
+    - [x] Windows XP SP2 
+- [ ] 64-bit support
+
 # Credits
 
 - Pluf/7A69ML original author WinXPSP2.Cermalus
