@@ -16,6 +16,10 @@ Based from WinXPSP2.Cermalus by Pluf/7A69ML: [therealdreg/WinXPSP2.Cermalus](htt
 - Open **/source/cerdalux.rap** in Radasm2 IDE and Build All
 - Done!
 
+## debug build
+
+![radasmdebugbuild](radasmdebugbuild.png)
+
 # Credits
 
 - Pluf/7A69ML original author WinXPSP2.Cermalus
