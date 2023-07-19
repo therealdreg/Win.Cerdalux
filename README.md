@@ -18,7 +18,7 @@ Based from WinXPSP2.Cermalus by Pluf/7A69ML: [therealdreg/WinXPSP2.Cermalus](htt
 
 ## debug build
 
-![radasmdebugbuild](radasmdebugbuild.png)
+![radasmdebugbuild](assets/radasmdebugbuild.png)
 
 # Credits
 
