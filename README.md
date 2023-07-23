@@ -54,6 +54,7 @@ Are you an usermode malware reverser/researcher/developer wanting to get started
 - [ ] Multi-core support: KeSetTargetProcessorDpc + KeInsertQueueDpc...
 - [ ] Support newer Windows versions
     - [x] Windows XP SP2
+    - [x] Windows XP SP3
 - [ ] 64-bit support
 
 # Credits
